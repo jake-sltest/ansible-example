@@ -123,22 +123,25 @@ resource "azurerm_virtual_machine_extension" "enable_winrm_https" {
   settings = jsonencode({
     commandToExecute = <<EOT
 powershell -ExecutionPolicy Unrestricted -Command "
-# Create a self-signed cert
+# Generate a cert for WinRM
 $cert = New-SelfSignedCertificate -DnsName $(hostname) -CertStoreLocation Cert:\\LocalMachine\\My
 
-# Create HTTPS listener
+# Delete existing HTTPS listeners if any
+winrm delete winrm/config/Listener?Address=*+Transport=HTTPS
+
+# Create new HTTPS listener bound to the cert
 winrm create winrm/config/Listener?Address=*+Transport=HTTPS @{Hostname='$(hostname)'; CertificateThumbprint=$cert.Thumbprint}
 
-# Configure WinRM
+# Configure service
 winrm set winrm/config/service @{AllowUnencrypted='false'}
 winrm set winrm/config/service/auth @{Basic='false'}
 
-# Enable WinRM service + PSRemoting
+# Enable and start WinRM
 Enable-PSRemoting -Force
 Set-Service -Name WinRM -StartupType Automatic
 Start-Service -Name WinRM
 
-# Open Windows firewall for 5986
+# Open firewall
 if (-not (Get-NetFirewallRule -DisplayName 'Allow WinRM HTTPS' -ErrorAction SilentlyContinue)) {
     New-NetFirewallRule -DisplayName 'Allow WinRM HTTPS' -Direction Inbound -Protocol TCP -LocalPort 5986 -Action Allow
 }
@@ -146,6 +149,7 @@ if (-not (Get-NetFirewallRule -DisplayName 'Allow WinRM HTTPS' -ErrorAction Sile
 EOT
   })
 }
+
 
 #############################
 # Terraform Outputs for Ansible
