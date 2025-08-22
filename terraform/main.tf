@@ -123,16 +123,25 @@ resource "azurerm_virtual_machine_extension" "enable_winrm_https" {
   settings = jsonencode({
     commandToExecute = <<EOT
 powershell -ExecutionPolicy Unrestricted -Command "
-# Create a self-signed certificate for WinRM
+# Create a self-signed cert
 $cert = New-SelfSignedCertificate -DnsName $(hostname) -CertStoreLocation Cert:\\LocalMachine\\My
 
-# Configure WinRM listener for HTTPS
+# Create HTTPS listener
 winrm create winrm/config/Listener?Address=*+Transport=HTTPS @{Hostname='$(hostname)'; CertificateThumbprint=$cert.Thumbprint}
 
-# Enable the service and PS remoting securely
+# Configure WinRM
 winrm set winrm/config/service @{AllowUnencrypted='false'}
 winrm set winrm/config/service/auth @{Basic='false'}
+
+# Enable WinRM service + PSRemoting
 Enable-PSRemoting -Force
+Set-Service -Name WinRM -StartupType Automatic
+Start-Service -Name WinRM
+
+# Open Windows firewall for 5986
+if (-not (Get-NetFirewallRule -DisplayName 'Allow WinRM HTTPS' -ErrorAction SilentlyContinue)) {
+    New-NetFirewallRule -DisplayName 'Allow WinRM HTTPS' -Direction Inbound -Protocol TCP -LocalPort 5986 -Action Allow
+}
 "
 EOT
   })
