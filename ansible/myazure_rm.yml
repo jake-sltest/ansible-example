@@ -4,7 +4,7 @@ auth_source: env
 filters:
   resource_group: rg-winrm-demo
 compose:
-  ansible_host: network_interface[0].private_ip_address
+  ansible_host: private_ip_address   # change to the field returned by `--list`
   ansible_user: azureuser
   ansible_password: P@ssw0rd1234!
   ansible_port: 5985
