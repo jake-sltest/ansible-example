@@ -43,7 +43,9 @@ stacks:
 
         before_init:
             - chmod 644 playbook.yml
-            - pip install "pywinrm>=0.4.2" "requests-ntlm"
+            - ansible-galaxy collection install azure.azcollection
+            - pip install "pywinrm>=0.4.2" "requests-ntlm" "ansible[azure]" msrest azure-mgmt-compute azure-mgmt-network azure-mgmt-resource pywinrm
+
             # "echo $host > /mnt/workspace/inventory.ini"
         # Pointers to the above steps
         before_plan: *steps
