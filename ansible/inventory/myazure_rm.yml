@@ -1,14 +1,23 @@
 plugin: azure.azcollection.azure_rm
 auth_source: env
 
-# Limit to your resource group
+# Only VMs in this resource group
 resource_group: rg-winrm-demo
 
-# Only discover Windows VMs
+# Only Windows VMs
 filters:
   os_type: Windows
 
-# Optional: create groups dynamically by VM name
+# Force all discovered Windows hosts to use WinRM
+compose:
+  ansible_connection: winrm
+  ansible_winrm_transport: ssl
+  ansible_port: 5986
+  ansible_user: "{{ lookup('env', 'ANSIBLE_USER') }}"
+  ansible_password: "{{ lookup('env', 'ANSIBLE_PASSWORD') }}"
+  ansible_winrm_server_cert_validation: ignore
+
+# Optional: dynamic groups by VM name
 keyed_groups:
   - key: name
     prefix: winvm_
