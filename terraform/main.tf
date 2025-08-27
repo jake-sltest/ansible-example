@@ -168,6 +168,6 @@ output "winvm_private_ip" {
 output "ansible_inventory" {
   value = <<EOT
 [windows]
-winvm ansible_host=${azurerm_public_ip.vm_public_ip.ip_address} ansible_user=azureuser ansible_password=P@ssw0rd1234! ansible_port=5986 ansible_connection=winrm ansible_winrm_transport=ssl ansible_winrm_server_cert_validation=ignore
+winvm ansible_host=${azurerm_network_interface.nic.private_ip_address} ansible_user=azureuser ansible_password=P@ssw0rd1234! ansible_port=5986 ansible_connection=winrm ansible_winrm_transport=ssl ansible_winrm_server_cert_validation=ignore
 EOT
 }
