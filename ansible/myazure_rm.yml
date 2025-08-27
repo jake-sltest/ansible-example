@@ -1,13 +1,8 @@
 ---
 plugin: azure.azcollection.azure_rm
 auth_source: env
-filters:
-  resource_group: rg-winrm-demo
-compose:
-  ansible_host: private_ip_address   # change to the field returned by `--list`
-  ansible_user: azureuser
-  ansible_password: P@ssw0rd1234!
-  ansible_port: 5985
-  ansible_connection: winrm
-  ansible_winrm_transport: ntlm
-  ansible_winrm_server_cert_validation: ignore
+keyed_groups:
+  - prefix: tag
+    key: tags
+hostvar_expressions:
+  ansible_host: private_ipv4_addresses[0]
