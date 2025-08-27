@@ -3,7 +3,5 @@ plugin: azure_rm
 include_vm_resource_groups:
   - rg-winrm-demo
 auth_source: auto
-groups:
-  windows: "'Windows' in tags"
 hostnames:
   - private_ip_address
