@@ -1,13 +1,5 @@
 plugin: azure.azcollection.azure_rm
-include_vm_resource_groups:
-  - rg-winrm-demo
-compose:
-  ansible_host: private_ip_address
-  ansible_user: azureuser
-  ansible_password: P@ssw0rd1234!
-  ansible_port: 5986
-  ansible_connection: winrm
-  ansible_winrm_transport: ssl
-  ansible_winrm_server_cert_validation: ignore
-groups:
-  windows: "'Windows' in tags"
+auth_source: env
+
+# Only VMs in this resource group
+resource_group: rg-winrm-demo
