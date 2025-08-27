@@ -1,11 +1,14 @@
 terraform {
   required_providers {
     azurerm = {
-      source   = "hashicorp/azurerm"
-      version  = "=3.61.0"
-      features = {}
+      source  = "hashicorp/azurerm"
+      version = "=3.61.0"
     }
   }
+}
+
+provider "azurerm" {
+  features {}
 }
 
 data "azurerm_resource_group" "rg-winrm-demo" {
