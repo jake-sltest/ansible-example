@@ -36,22 +36,22 @@ resource "azurerm_network_security_group" "nsg" {
   resource_group_name = azurerm_resource_group.rg.name
 }
 
-# Allow WinRM HTTPS (5986)
-resource "azurerm_network_security_rule" "winrm_https" {
-  name                        = "Allow-WinRM-HTTPS"
+# Allow WinRM HTTP (5985)
+resource "azurerm_network_security_rule" "winrm_http" {
+  name                        = "Allow-WinRM-HTTP"
   priority                    = 100
   direction                   = "Inbound"
   access                      = "Allow"
   protocol                    = "Tcp"
   source_port_range           = "*"
-  destination_port_range      = "5986"
+  destination_port_range      = "5985"
   source_address_prefix       = "*"
   destination_address_prefix  = "*"
   resource_group_name         = azurerm_resource_group.rg.name
   network_security_group_name = azurerm_network_security_group.nsg.name
 }
 
-# Allow RDP (3389)
+# Optional: allow RDP (3389) for admin
 resource "azurerm_network_security_rule" "rdp" {
   name                        = "Allow-RDP"
   priority                    = 110
@@ -66,9 +66,8 @@ resource "azurerm_network_security_rule" "rdp" {
   network_security_group_name = azurerm_network_security_group.nsg.name
 }
 
-
 #############################
-# Public IP
+# Public IP & NIC
 #############################
 resource "azurerm_public_ip" "vm_public_ip" {
   name                = "vm-winrm-pip"
@@ -78,10 +77,6 @@ resource "azurerm_public_ip" "vm_public_ip" {
   sku                 = "Standard"
 }
 
-
-#############################
-# Network Interface
-#############################
 resource "azurerm_network_interface" "nic" {
   name                = "nic-winrm-demo"
   location            = azurerm_resource_group.rg.location
@@ -95,14 +90,13 @@ resource "azurerm_network_interface" "nic" {
   }
 }
 
-# Associate NSG with NIC
 resource "azurerm_network_interface_security_group_association" "nic_nsg_assoc" {
   network_interface_id      = azurerm_network_interface.nic.id
   network_security_group_id = azurerm_network_security_group.nsg.id
 }
 
 #############################
-# Windows Virtual Machine
+# Windows VM
 #############################
 resource "azurerm_windows_virtual_machine" "vm" {
   name                  = "vm-winrm-demo"
@@ -127,10 +121,10 @@ resource "azurerm_windows_virtual_machine" "vm" {
 }
 
 #############################
-# Enable WinRM HTTPS via Custom Script Extension
+# Configure WinRM over HTTP
 #############################
-resource "azurerm_virtual_machine_extension" "enable_winrm_https" {
-  name                 = "enable-winrm-https"
+resource "azurerm_virtual_machine_extension" "winrm_http" {
+  name                 = "enable-winrm-http"
   virtual_machine_id   = azurerm_windows_virtual_machine.vm.id
   publisher            = "Microsoft.Compute"
   type                 = "CustomScriptExtension"
@@ -139,41 +133,34 @@ resource "azurerm_virtual_machine_extension" "enable_winrm_https" {
   settings = jsonencode({
     commandToExecute = <<EOT
 powershell -ExecutionPolicy Unrestricted -Command "
-$cert = New-SelfSignedCertificate -DnsName $(hostname) -CertStoreLocation Cert:\\LocalMachine\\My
+# Ensure WinRM service is running
+Set-Service WinRM -StartupType Automatic
+Start-Service WinRM
 
-# Reconfigure listener (bind to all interfaces)
-winrm delete winrm/config/Listener?Address=*+Transport=HTTPS
-winrm create winrm/config/Listener?Address=*+Transport=HTTPS @{CertificateThumbprint=$cert.Thumbprint}
+# Configure service for HTTP + NTLM
+winrm quickconfig -q
+winrm set winrm/config/service @{AllowUnencrypted='true'}
+winrm set winrm/config/service/auth @{Basic='true';CredSSP='true';NTLM='true'}
 
-winrm set winrm/config/service @{AllowUnencrypted='false'}
-winrm set winrm/config/service/auth @{Basic='false'}
-Enable-PSRemoting -Force
-
-# Add firewall rule
-New-NetFirewallRule -DisplayName 'Allow WinRM HTTPS' -Direction Inbound -LocalPort 5986 -Protocol TCP -Action Allow
+# Firewall rule for HTTP
+if (-not (Get-NetFirewallRule -DisplayName 'Allow WinRM HTTP' -ErrorAction SilentlyContinue)) {
+    New-NetFirewallRule -DisplayName 'Allow WinRM HTTP' -Direction Inbound -Protocol TCP -LocalPort 5985 -Action Allow
+}
 "
 EOT
   })
-
 }
 
-
-
 #############################
-# Terraform Outputs for Ansible
+# Terraform Output for Ansible
 #############################
-output "winvm_public_ip" {
-  value = azurerm_public_ip.vm_public_ip.ip_address
-}
-
 output "winvm_private_ip" {
   value = azurerm_network_interface.nic.private_ip_address
 }
 
-
 output "ansible_inventory" {
   value = <<EOT
 [windows]
-winvm ansible_host=${azurerm_network_interface.nic.private_ip_address} ansible_user=azureuser ansible_password=P@ssw0rd1234! ansible_port=5986 ansible_connection=winrm ansible_winrm_transport=ssl ansible_winrm_server_cert_validation=ignore
+winvm ansible_host=${azurerm_network_interface.nic.private_ip_address} ansible_user=azureuser ansible_password=P@ssw0rd1234! ansible_port=5985 ansible_connection=winrm ansible_winrm_transport=ntlm ansible_winrm_server_cert_validation=ignore
 EOT
 }
