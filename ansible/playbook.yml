@@ -1,14 +1,12 @@
-- name: Test Windows VM via WinRM
-  hosts: all
-  gather_facts: true
-
+- name: Test Windows VM
+  hosts: windows
+  gather_facts: no
   tasks:
-    - name: Create a folder
-      win_file:
-        path: C:\Temp\TestFolder
-        state: directory
+    - name: Ensure hostname
+      win_hostname:
+        name: "winrm-demo"
 
-    - name: Write a text file
+    - name: Create test file
       win_file:
-        path: C:\Temp\TestFolder\hello.txt
+        path: C:\Temp\spacelift_test.txt
         state: touch

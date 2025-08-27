@@ -1,8 +1,9 @@
 ---
-plugin: azure.azcollection.azure_rm
-auth_source: env
-keyed_groups:
-  - prefix: tag
-    key: tags
-hostvar_expressions:
-  ansible_host: private_ipv4_addresses[0]
+plugin: azure_rm
+include_vm_resource_groups:
+  - rg-winrm-demo
+auth_source: auto
+groups:
+  windows: "'Windows' in tags"
+hostnames:
+  - private_ip_address
