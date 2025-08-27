@@ -2,6 +2,7 @@ provider "azurerm" {
   features {}
 }
 
+# Network Interface in the existing subnet
 resource "azurerm_network_interface" "vm_nic" {
   name                = "nic-winrm-demo"
   location            = "eastus"
@@ -14,6 +15,7 @@ resource "azurerm_network_interface" "vm_nic" {
   }
 }
 
+# Windows VM in the existing VNet/Subnet
 resource "azurerm_windows_virtual_machine" "vm" {
   name                  = "vm-winrm-demo"
   location              = "eastus"
@@ -22,7 +24,7 @@ resource "azurerm_windows_virtual_machine" "vm" {
   size                  = "Standard_B2ms"
 
   admin_username = "azureuser"
-  admin_password = "YourP@ssword123!" # Replace with secure password
+  admin_password = "YourP@ssword123!" # Replace with a secure password
 
   os_disk {
     caching              = "ReadWrite"
@@ -36,12 +38,12 @@ resource "azurerm_windows_virtual_machine" "vm" {
     version   = "latest"
   }
 
-  # Optional: Enable WinRM over HTTPS
-  # winrm {
-  #   protocol = "https"
-  # }
+  tags = {
+    os = "Windows" # For dynamic inventory
+  }
 }
 
+# Output the VM private IP for reference (optional)
 output "vm_private_ip" {
   value = azurerm_network_interface.vm_nic.private_ip_address
 }
