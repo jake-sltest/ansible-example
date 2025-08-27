@@ -123,32 +123,22 @@ resource "azurerm_virtual_machine_extension" "enable_winrm_https" {
   settings = jsonencode({
     commandToExecute = <<EOT
 powershell -ExecutionPolicy Unrestricted -Command "
-# 1. Create self-signed certificate
 $cert = New-SelfSignedCertificate -DnsName $(hostname) -CertStoreLocation Cert:\\LocalMachine\\My
 
-# 2. Remove any existing HTTPS listeners
-$existing = winrm enumerate winrm/config/Listener | Where-Object { $_.Transport -eq 'HTTPS' }
-if ($existing) { winrm delete winrm/config/Listener?Address=*+Transport=HTTPS }
+# Reconfigure listener (bind to all interfaces)
+winrm delete winrm/config/Listener?Address=*+Transport=HTTPS
+winrm create winrm/config/Listener?Address=*+Transport=HTTPS @{CertificateThumbprint=$cert.Thumbprint}
 
-# 3. Create HTTPS listener
-winrm create winrm/config/Listener?Address=*+Transport=HTTPS @{Hostname='$(hostname)'; CertificateThumbprint=$cert.Thumbprint}
-
-# 4. Configure WinRM service
 winrm set winrm/config/service @{AllowUnencrypted='false'}
 winrm set winrm/config/service/auth @{Basic='false'}
-
-# 5. Enable PS Remoting and ensure WinRM service is running
 Enable-PSRemoting -Force
-Set-Service -Name WinRM -StartupType Automatic
-Start-Service -Name WinRM
 
-# 6. Open Windows Firewall for 5986
-if (-not (Get-NetFirewallRule -DisplayName 'Allow WinRM HTTPS' -ErrorAction SilentlyContinue)) {
-    New-NetFirewallRule -DisplayName 'Allow WinRM HTTPS' -Direction Inbound -Protocol TCP -LocalPort 5986 -Action Allow
-}
+# Add firewall rule
+New-NetFirewallRule -DisplayName 'Allow WinRM HTTPS' -Direction Inbound -LocalPort 5986 -Protocol TCP -Action Allow
 "
 EOT
   })
+
 }
 
 
