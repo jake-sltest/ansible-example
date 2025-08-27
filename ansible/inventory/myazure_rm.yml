@@ -1,0 +1,14 @@
+plugin: azure.azcollection.azure_rm
+auth_source: env
+
+# Limit to your resource group
+resource_group: rg-winrm-demo
+
+# Only discover Windows VMs
+filters:
+  os_type: Windows
+
+# Optional: create groups dynamically by VM name
+keyed_groups:
+  - key: name
+    prefix: winvm_

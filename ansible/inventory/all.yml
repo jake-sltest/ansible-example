@@ -1,3 +1,4 @@
+# Global defaults for all hosts
 ansible_connection: winrm
 ansible_winrm_transport: ssl
 ansible_port: 5986
