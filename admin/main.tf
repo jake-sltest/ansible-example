@@ -17,7 +17,7 @@ module "azure-worker" {
     export SPACELIFT_POOL_PRIVATE_KEY="${var.worker_pool_private_key}"
   EOT
 
-  resource_group = "/subscriptions/d2d840cc-eb24-4500-a29f-6cddefb542a4/resourceGroups/rg-winrm-demo" # An azurerm_resource_group object - must have `name` and `location` properties
+  resource_group = "rg-winrm-demo" # An azurerm_resource_group object - must have `name` and `location` properties
   subnet_id      = "/subscriptions/d2d840cc-eb24-4500-a29f-6cddefb542a4/resourceGroups/rg-winrm-demo/providers/Microsoft.Network/virtualNetworks/vnet-winrm-demo/subnets/subnet-winrm-demo"
   worker_pool_id = "01K3PDK560Q2R75KGZN22C4C7Z"
 }
