@@ -1,0 +1,9 @@
+plugin: azure.azcollection.azure_rm
+include_vm_resource_groups:
+  - rg-winrm-demo
+auth_source: auto
+compose:
+  ansible_host: private_ip_address
+groups:
+  windows:  # group name for your playbooks
+    - "'Windows' in tags.values() or 'vm-winrm-demo' in name"  # optional

@@ -1,5 +1,0 @@
-plugin: azure.azcollection.azure_rm
-auth_source: env
-
-# Only VMs in this resource group
-resource_group: rg-winrm-demo
