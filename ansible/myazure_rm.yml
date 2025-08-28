@@ -3,7 +3,7 @@ plugin: azure.azcollection.azure_rm
 include_vm_resource_groups:
   - rg-winrm-demo
 
-auth_source: environment
+auth_source: env
 
 # Map the first private IP to ansible_host
 compose:
