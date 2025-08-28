@@ -1,9 +1,15 @@
+---
 plugin: azure.azcollection.azure_rm
 include_vm_resource_groups:
-  - rg-winrm-demo
+  - rg-winrm-demo   # matches your Terraform RG
 auth_source: auto
 compose:
-  ansible_host: private_ip_address
+  ansible_host: public_ip_addresses[0]   # Use first public IP
+  ansible_user: azureuser
+  ansible_password: P@ssw0rd1234!
+  ansible_connection: winrm
+  ansible_winrm_transport: ssl
+  ansible_port: 5986
+  ansible_winrm_server_cert_validation: ignore
 groups:
-  windows:  # group name for your playbooks
-    - "'Windows' in tags.values() or 'vm-winrm-demo' in name"  # optional
+  windows: "'vm-winrm-demo' in name"
