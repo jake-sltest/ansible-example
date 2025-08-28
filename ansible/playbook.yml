@@ -1,6 +1,6 @@
 ---
 - name: Test Windows VM via WinRM
-  hosts: windows
+  hosts: all
   tasks:
     - name: Create test folder
       win_file:
