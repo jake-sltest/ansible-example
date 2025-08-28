@@ -4,12 +4,13 @@ include_vm_resource_groups:
   - rg-winrm-demo   # matches your Terraform RG
 auth_source: auto
 compose:
-  ansible_host: public_ip_addresses[0]   # Use first public IP
-  ansible_user: azureuser
-  ansible_password: P@ssw0rd1234!
+  ansible_host: private_ip_addresses   # Use first public IP
   ansible_connection: winrm
   ansible_winrm_transport: ssl
-  ansible_port: 5986
+  ansible_port: 5985
+  ansible_user: "{{ lookup('env', 'ANSIBLE_USER') }}"
+  ansible_password: "{{ lookup('env', 'ANSIBLE_PASSWORD') }}"
   ansible_winrm_server_cert_validation: ignore
+
 groups:
   windows: "'vm-winrm-demo' in name"

@@ -138,17 +138,17 @@ resource "azurerm_virtual_machine_extension" "enable_winrm_http" {
   settings = jsonencode({
     commandToExecute = <<EOT
 powershell -ExecutionPolicy Unrestricted -Command "
-# Enable WinRM over HTTP
+# Enable WinRM
 winrm quickconfig -q
 winrm set winrm/config/service @{AllowUnencrypted='true'}
 winrm set winrm/config/service/auth @{Basic='true'}
 
-# Add firewall rule for WinRM HTTP (5985)
+# Open firewall
 if (-not (Get-NetFirewallRule -DisplayName 'Allow WinRM HTTP' -ErrorAction SilentlyContinue)) {
     New-NetFirewallRule -DisplayName 'Allow WinRM HTTP' -Direction Inbound -LocalPort 5985 -Protocol TCP -Action Allow
 }
 
-# Allow local account logins via WinRM
+# Allow local accounts to log in via WinRM
 New-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System' -Name 'LocalAccountTokenFilterPolicy' -Value 1 -PropertyType DWord -Force
 "
 EOT
