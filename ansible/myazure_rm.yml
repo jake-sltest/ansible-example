@@ -3,7 +3,7 @@ include_vm_resource_groups:
   - rg-winrm-demo   # matches your Terraform RG
 auth_source: auto
 compose:
-  ansible_host: private_ip_addresses   # Use first public IP
+  ansible_host: "{{ private_ips[0] }}"
   ansible_connection: winrm
   ansible_winrm_transport: ssl
   ansible_port: 5985
