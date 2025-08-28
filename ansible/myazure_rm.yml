@@ -1,13 +1,13 @@
-plugin: azure.azcollection.azure_rm
+plugin: azure_rm
 
 include_vm_resource_groups:
   - rg-winrm-demo
 
 auth_source: env
 
-# Map the first private IP to ansible_host
-compose:
-  ansible_host: "10.0.1.4"
+# # Map the first private IP to ansible_host
+# compose:
+#   ansible_host: "10.0.1.4"
 
 # Static connection parameters
 ansible_connection: winrm
