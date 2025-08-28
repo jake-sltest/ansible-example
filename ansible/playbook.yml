@@ -2,13 +2,6 @@
 - name: Test Windows VM via WinRM
   hosts: windows
   tasks:
-    - name: Get Windows OS info
-      win_command: systeminfo | findstr /B /C:"OS Name" /C:"OS Version"
-      register: result
-
-    - debug:
-        var: result.stdout_lines
-
     - name: Create test folder
       win_file:
         path: C:\Temp\TestFolder
