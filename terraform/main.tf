@@ -128,8 +128,8 @@ resource "azurerm_windows_virtual_machine" "vm" {
 #############################
 # Enable WinRM HTTPS via Custom Script Extension
 #############################
-resource "azurerm_virtual_machine_extension" "enable_winrm_https" {
-  name                 = "enable-winrm-https"
+resource "azurerm_virtual_machine_extension" "enable_winrm_http" {
+  name                 = "enable-winrm-http"
   virtual_machine_id   = azurerm_windows_virtual_machine.vm.id
   publisher            = "Microsoft.Compute"
   type                 = "CustomScriptExtension"
@@ -138,23 +138,18 @@ resource "azurerm_virtual_machine_extension" "enable_winrm_https" {
   settings = jsonencode({
     commandToExecute = <<EOT
 powershell -ExecutionPolicy Unrestricted -Command "
-$cert = New-SelfSignedCertificate -DnsName $(hostname) -CertStoreLocation Cert:\\LocalMachine\\My
+# Enable WinRM over HTTP
+winrm quickconfig -q
+winrm set winrm/config/service @{AllowUnencrypted='true'}
+winrm set winrm/config/service/auth @{Basic='true'}
 
-# Reconfigure listener (bind to all interfaces)
-winrm delete winrm/config/Listener?Address=*+Transport=HTTPS
-winrm create winrm/config/Listener?Address=*+Transport=HTTPS @{CertificateThumbprint=$cert.Thumbprint}
-
-winrm set winrm/config/service @{AllowUnencrypted='false'}
-winrm set winrm/config/service/auth @{Basic='false'}
-Enable-PSRemoting -Force
-
-# Add firewall rule
-New-NetFirewallRule -DisplayName 'Allow WinRM HTTPS' -Direction Inbound -LocalPort 5986 -Protocol TCP -Action Allow
+# Add firewall rule for 5985
+New-NetFirewallRule -DisplayName 'Allow WinRM HTTP' -Direction Inbound -LocalPort 5985 -Protocol TCP -Action Allow -ErrorAction SilentlyContinue
 "
 EOT
   })
-
 }
+
 
 
 
