@@ -7,7 +7,7 @@ auth_source: env
 
 # Map the first private IP to ansible_host
 compose:
-  ansible_host: private_ips[0]
+  ansible_host: "{{ (private_ips[0] if (private_ips is defined and private_ips|length > 0) else public_ips[0]) }}"
 
 # Static connection parameters
 ansible_connection: winrm
