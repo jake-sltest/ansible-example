@@ -1,15 +1,18 @@
 plugin: azure.azcollection.azure_rm
+
 include_vm_resource_groups:
-  - rg-winrm-demo   # matches your Terraform RG
+  - rg-winrm-demo
+
 auth_source: auto
+
+# Map the first private IP to ansible_host
 compose:
   ansible_host: "{{ private_ips[0] }}"
-  ansible_connection: winrm
-  ansible_winrm_transport: ssl
-  ansible_port: 5985
-  ansible_user: "{{ lookup('env', 'ANSIBLE_USER') }}"
-  ansible_password: "{{ lookup('env', 'ANSIBLE_PASSWORD') }}"
-  ansible_winrm_server_cert_validation: ignore
 
-groups:
-  windows: "'vm-winrm-demo' in name"
+# Static connection parameters
+ansible_connection: winrm
+ansible_winrm_transport: ssl
+ansible_port: 5985
+ansible_user: "{{ lookup('env', 'ANSIBLE_USER') }}"
+ansible_password: "{{ lookup('env', 'ANSIBLE_PASSWORD') }}"
+ansible_winrm_server_cert_validation: ignore
