@@ -1,6 +1,6 @@
 # Global defaults for all hosts
 ansible_connection: winrm
-ansible_winrm_transport: ssl
+ansible_winrm_transport: basic
 ansible_port: 5986
 ansible_user: azureuser
 ansible_password: 'P@ssw0rd1234!'
