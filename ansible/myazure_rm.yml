@@ -5,6 +5,8 @@ include_vm_resource_groups:
 
 auth_source: env
 
+hostvar_expressions:
+  ansible_host: (private_ipv4_addresses) | first
 # # Map the first private IP to ansible_host
 # compose:
 #   ansible_host: "10.0.1.4"
