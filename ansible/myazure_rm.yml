@@ -10,9 +10,9 @@ auth_source: env
 #   ansible_host: "10.0.1.4"
 
 # Static connection parameters
-ansible_connection: winrm
-ansible_winrm_transport: basic
-ansible_port: 5985
-ansible_user: azureuser
-ansible_password: 'P@ssw0rd1234!'
-ansible_winrm_server_cert_validation: ignore
+# ansible_connection: winrm
+# ansible_winrm_transport: basic
+# ansible_port: 5985
+# ansible_user: azureuser
+# ansible_password: 'P@ssw0rd1234!'
+# ansible_winrm_server_cert_validation: ignore
