@@ -2,6 +2,6 @@
 ansible_connection: winrm
 ansible_winrm_transport: basic
 ansible_port: 5985
-ansible_user: "{{ ANSIBLE_USER }}"
-ansible_password: "{{ ANSIBLE_PASSWORD }}"
+# ansible_user: "{{ ANSIBLE_USER }}"
+# ansible_password: "{{ ANSIBLE_PASSWORD }}"
 ansible_winrm_server_cert_validation: ignore

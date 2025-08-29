@@ -2,6 +2,10 @@
 - name: Test Windows VM via WinRM
   hosts: all
 
+  vars:
+    ansible_user: "{{ ANSIBLE_USER }}"
+    ansible_password: "{{ ANSIBLE_PASSWORD }}"
+
   tasks:
     - name: Create test folder
       win_file:
