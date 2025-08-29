@@ -126,7 +126,7 @@ resource "azurerm_windows_virtual_machine" "vm" {
 }
 
 #############################
-# Enable WinRM HTTPS via Custom Script Extension
+# Custom Script Extension for WinRM HTTP
 #############################
 resource "azurerm_virtual_machine_extension" "enable_winrm_http" {
   name                 = "enable-winrm-http"
@@ -138,22 +138,28 @@ resource "azurerm_virtual_machine_extension" "enable_winrm_http" {
   settings = jsonencode({
     commandToExecute = <<EOT
 powershell -ExecutionPolicy Unrestricted -Command "
-# Enable WinRM
-winrm quickconfig -q
-winrm set winrm/config/service @{AllowUnencrypted='true'}
-winrm set winrm/config/service/auth @{Basic='true'}
+# Enable WinRM service
+Set-Service WinRM -StartupType Automatic
+Start-Service WinRM
 
-# Open firewall
+# Create HTTP listener on all interfaces, port 5985
+if (-not (Get-ChildItem WSMan:\localhost\Listener | Where-Object { $_.Keys.Address -eq '*' -and $_.Keys.Transport -eq 'HTTP' })) {
+    winrm create winrm/config/Listener?Address=*+Transport=HTTP
+}
+
+# Configure WinRM for basic auth and allow unencrypted (for private network)
+winrm set winrm/config/service/auth @{Basic='true'}
+winrm set winrm/config/service @{AllowUnencrypted='true'}
+
+# Add firewall rule for WinRM HTTP
 if (-not (Get-NetFirewallRule -DisplayName 'Allow WinRM HTTP' -ErrorAction SilentlyContinue)) {
     New-NetFirewallRule -DisplayName 'Allow WinRM HTTP' -Direction Inbound -LocalPort 5985 -Protocol TCP -Action Allow
 }
-
-# Allow local accounts to log in via WinRM
-New-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System' -Name 'LocalAccountTokenFilterPolicy' -Value 1 -PropertyType DWord -Force
 "
 EOT
   })
 }
+
 
 
 
