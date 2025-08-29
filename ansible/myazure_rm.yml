@@ -7,14 +7,3 @@ auth_source: env
 
 hostvar_expressions:
   ansible_host: (private_ipv4_addresses) | first
-# # Map the first private IP to ansible_host
-# compose:
-#   ansible_host: "10.0.1.4"
-
-# Static connection parameters
-# ansible_connection: winrm
-# ansible_winrm_transport: basic
-# ansible_port: 5985
-# ansible_user: azureuser
-# ansible_password: 'P@ssw0rd1234!'
-# ansible_winrm_server_cert_validation: ignore
