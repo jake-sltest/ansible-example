@@ -3,8 +3,8 @@
   hosts: all
 
   vars:
-  ansible_user: "{{ lookup('env', 'ANSIBLE_USER') }}"
-  ansible_password: "{{ lookup('env', 'ANSIBLE_PASSWORD') }}"
+    ansible_user: "{{ lookup('env', 'ANSIBLE_USER') }}"
+    ansible_password: "{{ lookup('env', 'ANSIBLE_PASSWORD') }}"
 
   tasks:
     - name: Create test folder
