@@ -28,3 +28,9 @@ variable "spacelift_api_key_endpoint" {
   type        = string
   description = "Full URL of the Spacelift API endpoint to use, eg. https://demo.app.spacelift.io"
 }
+
+variable "subnet_id" {
+  type        = string
+  description = "ID of the subnet"
+}
+
