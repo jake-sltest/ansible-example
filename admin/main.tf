@@ -17,6 +17,6 @@ module "azure-worker" {
   EOT
 
   resource_group = data.azurerm_resource_group.rg-winrm-demo # An azurerm_resource_group object - must have `name` and `location` properties
-  subnet_id      = "/subscriptions/d2d840cc-eb24-4500-a29f-6cddefb542a4/resourceGroups/rg-winrm-demo/providers/Microsoft.Network/virtualNetworks/vnet-winrm-demo/subnets/subnet-winrm-demo"
+  subnet_id      = var.subnet_id
   worker_pool_id = var.worker_pool_id
 }
